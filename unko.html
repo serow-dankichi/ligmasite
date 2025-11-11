@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>うんこキャッチャー | りぐまサイト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <style>
+    body { margin: 0; overflow: hidden; background: #ccf; font-family: sans-serif; touch-action: none; }
+    #player {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      width: 20vw;
+      height: 5vh;
+      min-width: 100px;
+      min-height: 30px;
+      background: brown;
+      border-radius: 5px;
+      text-align: center;
+      line-height: 5vh;
+      color: white;
+      font-weight: bold;
+      font-size: 2vh;
+    }
+    .poop {
+      position: absolute;
+      font-size: min(6vw, 6vh);
+      pointer-events: none;
+    }
+    #score, #timer {
+      position: absolute;
+      top: 10px;
+      font-size: 5vw;
+      font-weight: bold;
+    }
+    #score { left: 10px; }
+    #timer { right: 10px; }
+    #result {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0008;
+      font-size: 5vw;
+      font-weight: bold;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <div id="timer">Time: 30</div>
+  <div id="player">受け皿</div>
+  <div id="result"></div>
+
+  <script>
+    const player = document.getElementById('player');
+    const scoreBoard = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const resultBox = document.getElementById('result');
+
+    let pos = window.innerWidth / 2;
+    let score = 0;
+    let speed = 5;
+    let poopInterval = 1000;
+    let timeLeft = 30;
+    let gameActive = true;
+
+    function updatePlayerPosition(x) {
+      pos = x - player.offsetWidth / 2;
+      player.style.left = Math.max(0, Math.min(pos, window.innerWidth - player.offsetWidth)) + 'px';
+    }
+
+    // PCマウス対応
+    document.addEventListener('mousemove', e => {
+      if (!gameActive) return;
+      updatePlayerPosition(e.clientX);
+    });
+
+    // スマホタッチ対応
+    document.addEventListener('touchmove', e => {
+      if (!gameActive) return;
+      const touch = e.touches[0];
+      updatePlayerPosition(touch.clientX);
+    });
+
+    function dropPoop() {
+      if (!gameActive) return;
+      const poop = document.createElement('div');
+      poop.className = 'poop';
+      poop.textContent = '💩';
+      poop.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+      poop.style.top = '0px';
+      document.body.appendChild(poop);
+      let y = 0;
+      const fall = setInterval(() => {
+        if (!gameActive) {
+          clearInterval(fall);
+          poop.remove();
+          return;
+        }
+        y += speed;
+        poop.style.top = y + 'px';
+
+        const poopX = poop.offsetLeft;
+        const poopY = poop.offsetTop;
+        const playerX = player.offsetLeft;
+        const playerY = player.offsetTop;
+
+        if (poopY >= playerY - 20 && poopY <= playerY + player.offsetHeight &&
+            poopX + 30 >= playerX && poopX <= playerX + player.offsetWidth) {
+          clearInterval(fall);
+          poop.remove();
+          score -= 1;
+          scoreBoard.textContent = "Score: " + score;
+        }
+
+        if (y > window.innerHeight - poop.offsetHeight) {
+          clearInterval(fall);
+          poop.remove();
+        }
+      }, 30);
+    }
+
+    function increaseDifficulty() {
+      if (speed < 30) speed += 0.7;
+      if (poopInterval > 200) poopInterval -= 20;
+    }
+
+    function poopRainLoop() {
+      if (!gameActive) return;
+      dropPoop();
+      increaseDifficulty();
+      setTimeout(poopRainLoop, poopInterval);
+    }
+
+    function startTimer() {
+      const interval = setInterval(() => {
+        if (!gameActive) {
+          clearInterval(interval);
+          return;
+        }
+        timeLeft -= 1;
+        timerDisplay.textContent = "Time: " + timeLeft;
+        if (timeLeft <= 0) {
+          gameActive = false;
+          player.style.display = "none";
+          timerDisplay.textContent = "Time: 0";
+          showResult();
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+
+    function showResult() {
+    	resultBox.style.display = "block";
+		let message;
+		if (score >= 0) {
+			message = '💩避けの達人！';
+		} else if (score <= -70) {
+			message = '💩仙人さま！';
+		} else if (score <= -65) {
+			message = '💩マスター認定！';
+		} else {
+			message = '💩修行がたりません！';
+		}
+    	resultBox.innerHTML = `
+    		<div>ゲーム終了！</div>
+    		<div>最終スコア: ${score}</div>
+    		<div>${message}</div>
+		 	`;
+	}
+
+    poopRainLoop();
+    startTimer();
+  </script>
+</body>
+</html>

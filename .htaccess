@@ -1,0 +1,3 @@
+<FilesMatch "\.html$">
+	AddHandler fcgid-script .html
+</FilesMatch>
