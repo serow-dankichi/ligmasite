@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <link rel="canonical" href="https://bundainamco.com/">
@@ -9,10 +10,11 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="/global.css?2508281531">
     <meta name="theme-color" content="dark-green">
-    <meta name="twitter:card" content="summary"/>
-    <meta name="twitter:site" content="@ligma6alls"/>
-    <meta name="twitter:description" content="りぐまのサイト、りぐまサイト。"/>
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@ligma6alls" />
+    <meta name="twitter:description" content="りぐまのサイト、りぐまサイト。" />
 </head>
+
 <body>
     <header>
         <h1>
@@ -20,7 +22,7 @@
         </h1>
     </header>
     <p class="top-object">
-    <h3>今週の時間割（11月11日更新）</h3>
+    <h3>今週の時間割（11月21日更新）</h3>
     <div id="nav">
         <button id="prev">&lt;前の週</button>
         <button id="next">次の週&gt;</button>
@@ -30,56 +32,73 @@
     </div>
 
     <script>
-    const IMG_VERSION = "2025-11-11";
-    // 今日の日付
-    const today = new Date();
-    let offset = 0;
+        const IMG_VERSION = "2025-11-21";
+        const today = new Date();
+        let offset = 0;
 
-    // 今週の土曜を取得（今日が土曜なら今日）
-    function getSaturdayBaseDate(offsetWeeks) {
-        const base = new Date(today);
-        const day = base.getDay();
-        const diff = (day >= 6) ? 0 : -(day + 1); // 土曜:6, 金曜:5...日曜:0
-        base.setDate(base.getDate() + diff + offsetWeeks * 7);
-        return base;
-    }
+        // 画像キャッシュ用
+        const imageCache = {};
 
-    // 年初の最初の土曜日
-    function getFirstSaturday(year) {
-        const jan1 = new Date(year, 0, 1);
-        const day = jan1.getDay();
-        const diff = (day <= 6) ? (6 - day) : 0;
-        jan1.setDate(jan1.getDate() + diff);
-        return jan1;
-    }
+        function getSaturdayBaseDate(offsetWeeks) {
+            const base = new Date(today);
+            const day = base.getDay();
+            const diff = (day >= 6) ? 0 : -(day + 1); // 土曜:6, 金曜:5...日曜:0
+            base.setDate(base.getDate() + diff + offsetWeeks * 7);
+            return base;
+        }
 
-    function updateImage() {
-        // 今週の土曜日を起点とした週番号
-        const saturday = getSaturdayBaseDate(offset);
-        const year = saturday.getFullYear();
-        const firstSat = getFirstSaturday(year);
+        function getFirstSaturday(year) {
+            const jan1 = new Date(year, 0, 1);
+            const day = jan1.getDay();
+            const diff = (day <= 6) ? (6 - day) : 0;
+            jan1.setDate(jan1.getDate() + diff);
+            return jan1;
+        }
 
-        const diffDays = Math.floor((saturday - firstSat) / (1000 * 60 * 60 * 24));
-        const weekNumber = Math.floor(diffDays / 7) + 1;
+        // offset から画像パスだけ計算する関数に分離
+        function getImagePathByOffset(offsetWeeks) {
+            const saturday = getSaturdayBaseDate(offsetWeeks);
+            const year = saturday.getFullYear();
+            const firstSat = getFirstSaturday(year);
 
-        // 画像ファイルパス
-        const imagePath = `/timetable/${year}-${weekNumber}.png?v=${IMG_VERSION}`;
+            const diffDays = Math.floor((saturday - firstSat) / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.floor(diffDays / 7) + 1;
 
-        // 挿入
-        document.getElementById("timetable").src = imagePath;
-    }
+            return `/timetable/${year}-${weekNumber}.png?v=${IMG_VERSION}`;
+        }
 
-    document.getElementById("prev").addEventListener("click", () => {
-        offset--;
+        // バックグラウンド読み込み
+        function preloadImage(offsetWeeks) {
+            const path = getImagePathByOffset(offsetWeeks);
+            if (imageCache[path]) return; // 既に読み込み開始済み
+
+            const img = new Image();
+            img.src = path;         // ここで裏読みが始まる
+            imageCache[path] = img; // キャッシュに保存（必要なら参照できるように）
+        }
+
+        function updateImage() {
+            const imagePath = getImagePathByOffset(offset);
+
+            const imgEl = document.getElementById("timetable");
+            imgEl.src = imagePath;
+
+            preloadImage(offset + 1);
+            preloadImage(offset - 1);
+        }
+
+        document.getElementById("prev").addEventListener("click", () => {
+            offset--;
+            updateImage();
+        });
+
+        document.getElementById("next").addEventListener("click", () => {
+            offset++;
+            updateImage();
+        });
+
         updateImage();
-    });
-
-    document.getElementById("next").addEventListener("click", () => {
-        offset++;
-        updateImage();
-    });
-
-    updateImage();
     </script>
 </body>
+
 </html>
