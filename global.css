@@ -6,8 +6,14 @@
 	font-family: serif;
 }
 
+:root {
+	--header-h: 70px;
+}
+
 html {
 	touch-action: manipulation;
+	scroll-padding-top: calc(var(--header-h) + 12px);
+	scroll-behavior: smooth;
 }
 
 header {
