@@ -64,6 +64,10 @@ p {
 	margin-left: 15px;
 }
 
+td {
+	vertical-align: middle;
+}
+
 #nav {
 	display: flex;
 	justify-content: space-between;
