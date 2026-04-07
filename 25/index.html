@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://bundainamco.com/25/">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>25系ホーム | りぐまサイト</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/global.css?2601071049">
+    <meta name="theme-color" content="dark-green">
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@ligma6alls" />
+    <meta name="twitter:description" content="りぐまのサイト、りぐまサイト。" />
+</head>
+
+<body>
+    <header>
+        <h1>
+            <a href="https://bundainamco.com/25/">りぐまサイト</a>
+        </h1>
+    </header>
+    <h3>今週の時間割（4月7日更新）</h3>
+    <div id="nav">
+        <button id="prev">&lt;前の週</button>
+        <button id="next">次の週&gt;</button>
+    </div>
+    <div id="image-container">
+        <img id="timetable" alt="時間割画像が見つかりません">
+    </div>
+    <script>
+        const IMG_VERSION = "2026-01-11";
+        const today = new Date();
+        let offset = 0;
+
+        // 画像キャッシュ用
+        const imageCache = {};
+
+        function getSaturdayBaseDate(offsetWeeks) {
+            const base = new Date(today);
+            const day = base.getDay();
+            const diff = (day >= 6) ? 0 : -(day + 1); // 土曜:6, 金曜:5...日曜:0
+            base.setDate(base.getDate() + diff + offsetWeeks * 7);
+            return base;
+        }
+
+        function getFirstSaturday(year) {
+            const jan1 = new Date(year, 0, 1);
+            const day = jan1.getDay();
+            const diff = (day <= 6) ? (6 - day) : 0;
+            jan1.setDate(jan1.getDate() + diff);
+            return jan1;
+        }
+
+        // offset から画像パスだけ計算する関数に分離
+        function getImagePathByOffset(offsetWeeks) {
+            const saturday = getSaturdayBaseDate(offsetWeeks);
+            const year = saturday.getFullYear();
+            const firstSat = getFirstSaturday(year);
+
+            const diffDays = Math.floor((saturday - firstSat) / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.floor(diffDays / 7) + 1;
+
+            return `/timetable25/${year}-${weekNumber}.png?v=${IMG_VERSION}`;
+        }
+
+        // バックグラウンド読み込み
+        function preloadImage(offsetWeeks) {
+            const path = getImagePathByOffset(offsetWeeks);
+            if (imageCache[path]) return; // 既に読み込み開始済み
+
+            const img = new Image();
+            img.src = path;         // ここで裏読みが始まる
+            imageCache[path] = img; // キャッシュに保存（必要なら参照できるように）
+        }
+
+        function updateImage() {
+            const imagePath = getImagePathByOffset(offset);
+
+            const imgEl = document.getElementById("timetable");
+            imgEl.src = imagePath;
+
+            preloadImage(offset + 1);
+            preloadImage(offset - 1);
+        }
+
+        document.getElementById("prev").addEventListener("click", () => {
+            offset--;
+            updateImage();
+        });
+
+        document.getElementById("next").addEventListener("click", () => {
+            offset++;
+            updateImage();
+        });
+
+        updateImage();
+    </script>
+</body>
+
+</html>
