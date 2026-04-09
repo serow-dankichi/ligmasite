@@ -3,6 +3,7 @@
 * {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 	font-family: serif;
 }
 
@@ -25,7 +26,7 @@ header {
 	display: flex;
 	background-color: darkgreen;
 	height: 50px;
-	width: 100vw;
+	width: 100%;
 	top: 0;
 	z-index: 1;
 }
@@ -121,18 +122,41 @@ button {
 
 @media (max-width: 640px) {
 	.page-content {
-		padding-left: 6px;
-		padding-right: 6px;
+		padding-left: 0;
+		padding-right: 0;
 	}
 
 	li {
+		margin-right: 10px;
 		margin-left: 32px;
 		font-size: 14pt;
+	}
+
+	h3,
+	h4,
+	p {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+
+	#nav {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	#image-container {
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-right: calc(50% - 50vw);
 	}
 
 	.exam-table th,
 	.exam-table td {
 		padding: 8px 6px;
 		font-size: 0.95rem;
+	}
+
+	.exam-table-wrap {
+		padding: 0 10px 24px;
 	}
 }
