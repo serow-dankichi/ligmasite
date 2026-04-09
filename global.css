@@ -16,6 +16,10 @@ html {
 	scroll-behavior: smooth;
 }
 
+body {
+	line-height: 1.5;
+}
+
 header {
 	position: fixed;
 	display: flex;
@@ -45,6 +49,12 @@ header h1 a {
 	}
 }
 
+.page-content {
+	width: min(100%, 980px);
+	margin: 0 auto;
+	padding: 0 12px 32px;
+}
+
 li {
 	margin: 10px;
 	margin-left: 50px;
@@ -64,8 +74,31 @@ p {
 	margin-left: 15px;
 }
 
+table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: white;
+}
+
 td {
 	vertical-align: middle;
+}
+
+.exam-table-wrap {
+	width: min(100%, 760px);
+	margin: 0 auto 32px;
+}
+
+.exam-table th,
+.exam-table td {
+	padding: 10px 12px;
+	line-height: 1.4;
+	word-break: keep-all;
+}
+
+.exam-table th:first-child,
+.exam-table td:first-child {
+	width: 34%;
 }
 
 #nav {
@@ -84,4 +117,22 @@ button {
 	height: auto;
 	display: block;
 	margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+	.page-content {
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+
+	li {
+		margin-left: 32px;
+		font-size: 14pt;
+	}
+
+	.exam-table th,
+	.exam-table td {
+		padding: 8px 6px;
+		font-size: 0.95rem;
+	}
 }
